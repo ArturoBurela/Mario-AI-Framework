@@ -2,10 +2,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import agents.andySloane.Agent;
 import engine.core.MarioGame;
 import engine.core.MarioResult;
 
-public class PlayLevel {
+public class Training {
     public static void printResults(MarioResult result) {
 	System.out.println("****************************************************************");
 	System.out.println("Game Status: " + result.getGameStatus().toString() + 
@@ -33,7 +34,8 @@ public class PlayLevel {
     
     public static void main(String[] args) {
 	MarioGame game = new MarioGame();
-	// printResults(game.playGame(getLevel("levels/original/lvl-1.txt"), 200, 0));
-	printResults(game.runGame(new agents.qlearning.Agent(), getLevel("levels/original/lvl-1.txt"), 100, 0, true));
+	// Create new agent
+	agents.qlearning.Agent agent = new agents.qlearning.Agent();
+	printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
     }
 }
