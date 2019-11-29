@@ -22,11 +22,11 @@ public class Agent implements MarioAgent {
 	// Q Table
 	private double[][][] qtable;
 	// epsilon
-	private float epsilon = 0.2f;
+	private float epsilon = 0.3f;
 	// alpha
-	private float alpha = 0.1f;
+	private float alpha = 0.15f;
 	// Gamma
-	private float gamma = 0.01f;
+	private float gamma = 0.8f;
 	// Scene matrix
 	private int[][] scene;
 	// Mac qtable score
