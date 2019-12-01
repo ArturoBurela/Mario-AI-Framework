@@ -155,7 +155,8 @@ public class Agent implements MarioAgent {
 		try {
 			BufferedWriter writer;
 			writer = new BufferedWriter(
-					new FileWriter("D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\table"+formattedDateTime+".txt"));
+					//new FileWriter("D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\table"+formattedDateTime+".txt"));
+					new FileWriter("D:\\Documentos\\ITC\\SistemasInteligentes\\Mario\\Mario-AI-Framework\\table" + formattedDateTime + ".txt"));
 			writer.write(builder.toString());// save the string representation of the board
 			writer.close();
 		} catch (IOException e) {
