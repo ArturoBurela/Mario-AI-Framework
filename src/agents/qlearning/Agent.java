@@ -114,7 +114,7 @@ public class Agent implements MarioAgent {
 	}
 
 	private void loadTable() throws IOException {
-		final String file = "D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\86porcientomario.txt";
+		final String file = "D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\win.txt";
 		try {
 			String data = "";
 			data = new String(Files.readAllBytes(Paths.get(file)));
