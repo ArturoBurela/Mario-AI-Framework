@@ -38,9 +38,16 @@ public class Training {
 	agents.qlearning.Agent agent = new agents.qlearning.Agent();
 	// agents.robinBaumgarten.Agent agent = new agents.robinBaumgarten.Agent();
 	// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
-	for(int i = 0; i< 100000; i++){
+		float maxVal = 0f;
+		float last = 0f;
+	for(int i = 0; i< 10000; i++){
 		MarioResult r = game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, false);
-		if (i % 5000 == 0){
+		if (r.getCompletionPercentage() > maxVal) {
+			maxVal = r.getCompletionPercentage();
+		} 
+		
+		if (i % 5000 == 0 || maxVal > last){
+			last = maxVal;
 			printResults(r);
 			agent.saveTable();
 		}

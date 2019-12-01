@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,7 +25,7 @@ public class Agent implements MarioAgent {
 	// epsilon
 	private float epsilon = 0.3f;
 	// alpha
-	private float alpha = 0.15f;
+	private float alpha = 0.1f;
 	// Gamma
 	private float gamma = 0.8f;
 	// Scene matrix
@@ -148,10 +149,13 @@ public class Agent implements MarioAgent {
 			}
 		}
 		LocalDateTime date = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
+
+		String formattedDateTime = date.format(formatter);
 		try {
 			BufferedWriter writer;
 			writer = new BufferedWriter(
-					new FileWriter("/Users/arturoburelat/Documents/Mario-AI-Framework/table" + date + ".txt"));
+					new FileWriter("D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\table"+formattedDateTime+".txt"));
 			writer.write(builder.toString());// save the string representation of the board
 			writer.close();
 		} catch (IOException e) {
