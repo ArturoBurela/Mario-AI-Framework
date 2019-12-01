@@ -1,12 +1,18 @@
 package agents.qlearning;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 import engine.core.MarioAgent;
 import engine.core.MarioForwardModel;
@@ -23,18 +29,18 @@ public class Agent implements MarioAgent {
 	// Q Table
 	private double[][][] qtable;
 	// epsilon
-	private float epsilon = 0.3f;
+	private final float epsilon = 0.3f;
 	// alpha
-	private float alpha = 0.1f;
+	private final float alpha = 0.1f;
 	// Gamma
-	private float gamma = 0.8f;
+	private final float gamma = 0.8f;
 	// Scene matrix
 	private int[][] scene;
 	// Mac qtable score
 	private float maxValue = 0f;
 
 	@Override
-	public void initialize(MarioForwardModel model, MarioTimer timer) {
+	public void initialize(final MarioForwardModel model, final MarioTimer timer) {
 		rnd = new Random();
 		initPossibleChoices();
 		initTable();
@@ -64,10 +70,16 @@ public class Agent implements MarioAgent {
 
 	private void initTable() {
 		qtable = new double[16][16][8];
+		try {
+			loadTable();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
+	public boolean[] getActions(final MarioForwardModel model, final MarioTimer timer) {
 		boolean[] action = null;
 		scene = model.getMarioCompleteObservation();
 		// printScene();
@@ -84,12 +96,12 @@ public class Agent implements MarioAgent {
 			action = choices.get(actionIndex);
 		}
 		// Update table values
-		MarioForwardModel s1 = model.clone();
+		final MarioForwardModel s1 = model.clone();
 		float reward = s1.getCompletionPercentage();
 		// Take action and get reward
 		s1.advance(action);
 		getBestAction();
-		float reward2 = s1.getCompletionPercentage();
+		final float reward2 = s1.getCompletionPercentage();
 		reward = reward2 - reward;
 		// Set new table values
 		setTableValues(actionIndex, reward, s1);
@@ -101,11 +113,33 @@ public class Agent implements MarioAgent {
 		return "QLearningAgent";
 	}
 
-	private void loadTable() {
-
+	private void loadTable() throws IOException {
+		final String file = "D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\86porcientomario.txt";
+		try {
+			String data = "";
+			data = new String(Files.readAllBytes(Paths.get(file)));
+			System.out.println(data);
+			String[] datos = data.split(",");
+			int n = 0;
+			for (int i = 0; i < qtable.length; i++)// for each row
+			{
+				for (int j = 0; j < qtable[0].length; j++)// for each column
+				{
+					for (int k = 0; k < qtable[0][0].length; k++) { // For each action
+						qtable[i][j][k] = Double.parseDouble(datos[n]);
+						n++;
+						// builder.append(qtable[i][j][k] + "");
+						// builder.append(",");
+					}
+				}
+			}
+		} catch (final FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private void setTableValues(int actionIndex, float reward, MarioForwardModel newState) {
+	private void setTableValues(final int actionIndex, final float reward, final MarioForwardModel newState) {
 		for (int x = 0; x < qtable.length; x++)// for each row
 		{
 			for (int y = 0; y < qtable[0].length; y++) { // For each column
@@ -137,7 +171,7 @@ public class Agent implements MarioAgent {
 	}
 
 	public void saveTable() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < qtable.length; i++)// for each row
 		{
 			for (int j = 0; j < qtable[0].length; j++)// for each column
@@ -148,17 +182,18 @@ public class Agent implements MarioAgent {
 				}
 			}
 		}
-		LocalDateTime date = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
+		final LocalDateTime date = LocalDateTime.now();
+		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
 
-		String formattedDateTime = date.format(formatter);
+		final String formattedDateTime = date.format(formatter);
 		try {
 			BufferedWriter writer;
 			writer = new BufferedWriter(
-					new FileWriter("D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\table"+formattedDateTime+".txt"));
+					new FileWriter("D:\\Data\\jhrojas\\Desktop\\ITC\\SistemasInteligentes\\Mario-AI-Framework\\table"
+							+ formattedDateTime + ".txt"));
 			writer.write(builder.toString());// save the string representation of the board
 			writer.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}

@@ -36,6 +36,7 @@ public class Training {
 	MarioGame game = new MarioGame();
 	// Create new agent
 	agents.qlearning.Agent agent = new agents.qlearning.Agent();
+	
 	// agents.robinBaumgarten.Agent agent = new agents.robinBaumgarten.Agent();
 	// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
 		float maxVal = 0f;
