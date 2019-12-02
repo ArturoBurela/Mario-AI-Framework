@@ -111,7 +111,7 @@ public class QLearningAgent implements MarioAgent {
         String state = "";
         for (int i = 0; i < scene.length; i++) {
             for (int j = 0; j < scene[i].length; j++) {
-                state += scene[i][j];
+                state += scene[i][j] + ",";
             }
         }
         return state;
