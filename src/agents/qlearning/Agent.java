@@ -163,6 +163,9 @@ public class Agent implements MarioAgent {
 
 	private void setTableValues2(int[][] scene, float reward, boolean[] action, MarioForwardModel nextState) {
 		Estado e = new Estado(scene, action);
+		if (! qtable2.containsKey(e)) {
+			qtable2.put(e, 0d);
+		}
 		qtable2.put(e, qtable2.get(e) + alpha * ((double)reward + (double)gamma * getMax2(nextState.getMarioCompleteObservation()) - qtable2.get(e)));
 		// Q[state, action] = Q[state, action] + lr * (reward + gamma * np.max(Q[new_state, :]) — Q[state, action])
 	}
