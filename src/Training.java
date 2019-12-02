@@ -36,10 +36,17 @@ public class Training {
 	MarioGame game = new MarioGame();
 	// Create new agent
 	agents.qlearning.QLearningAgent agent = new agents.qlearning.QLearningAgent();
-	
-	// agents.robinBaumgarten.Agent agent = new agents.robinBaumgarten.Agent();
-	// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
+	// Show screen
+	boolean show = false;
 	for(int i = 0; i< 10000; i++){
+
+		if (i%1000 == 0){
+			show = true;
+			agent.saveTable();
+		} else {
+			show = false;
+		}
+
 		//MarioResult r = game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, false);
 		MarioResult r = game.runGame(agent, 
 		"----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" + 
@@ -58,7 +65,7 @@ public class Training {
 		"---M-----------------g------tt--------tt-g----tt-----g-g-tt------------------------------------g-g--------k-----------------gg-g-g----####--####----#####--####----tt---------gg---tt#########--------#---\n" + 
 		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" + 
 		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-		100, 0, false);
+		100, 0, show);
 		
 		if (true){
 			printResults(r);

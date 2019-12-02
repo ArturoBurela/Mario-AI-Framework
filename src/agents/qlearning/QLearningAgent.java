@@ -1,5 +1,9 @@
 package agents.qlearning;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -7,6 +11,7 @@ import java.util.Random;
 import engine.core.MarioAgent;
 import engine.core.MarioForwardModel;
 import engine.core.MarioTimer;
+import engine.helper.GameStatus;
 
 public class QLearningAgent implements MarioAgent {
 
@@ -14,7 +19,7 @@ public class QLearningAgent implements MarioAgent {
     private HashMap<String, Double> qtable;
     private ArrayList<boolean[]> actions;
 
-    private final double EPSILON = 0.3d;
+    private final double EPSILON = 0.5d;
     private final double APLHA = 0.15d;
     private final double GAMMA = 0.8d;
 
@@ -52,7 +57,12 @@ public class QLearningAgent implements MarioAgent {
         s1.advance(action);
         Double nextScore = (double) s1.getCompletionPercentage();
         String nextScene = serializeScene(s1.getMarioCompleteObservation());
-        Double reward = nextScore - actualScore;
+        Double reward = ((nextScore - actualScore) * model.getRemainingTime()) + s1.getNumLives() + (s1.getKillsTotal() - model.getKillsTotal()) + (s1.getNumCollectedCoins() - model.getNumCollectedCoins());
+        reward += s1.getMarioFloatPos()[1];
+        if (s1.getGameStatus() == GameStatus.LOSE){
+            reward = -1000d;
+        }
+        System.out.println(reward);
         // Update table values
         String state = scene + actionIndex;
         Double value = (1 - APLHA) * qtable.get(state) + APLHA * (reward + GAMMA + getMax(nextScene));
@@ -77,11 +87,11 @@ public class QLearningAgent implements MarioAgent {
         // right jump
         actions.add(new boolean[] { false, true, false, false, true });
         // left
-        actions.add(new boolean[] { true, false, false, false, false });
+        // actions.add(new boolean[] { true, false, false, false, false });
         // left run
-        actions.add(new boolean[] { true, false, false, true, false });
+        // actions.add(new boolean[] { true, false, false, true, false });
         // left jump
-        actions.add(new boolean[] { true, false, false, false, true });
+        // actions.add(new boolean[] { true, false, false, false, true });
         // left jump and run
         actions.add(new boolean[] { true, false, false, true, true });
     }
@@ -131,5 +141,20 @@ public class QLearningAgent implements MarioAgent {
         }
         return maxIndex;
     }
+
+    public void saveTable() {
+		try {
+			final LocalDateTime date = LocalDateTime.now();
+			FileOutputStream fileOut = new FileOutputStream(
+					"/home/burela/Documentos/Mario-AI-Framework/qtable" + date + ".txt");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(qtable);
+			out.close();
+			fileOut.close();
+			System.out.printf("Saved qtable data");
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
 
 }
