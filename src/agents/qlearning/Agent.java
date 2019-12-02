@@ -22,9 +22,9 @@ public class Agent implements MarioAgent {
 	// Q Table
 	private double[][][] qtable;
 	// epsilon
-	private float epsilon = 0.3f;
+	private float epsilon = 0.5f;
 	// alpha
-	private float alpha = 0.15f;
+	private float alpha = 0.55f;
 	// Gamma
 	private float gamma = 0.8f;
 	// Scene matrix
@@ -87,11 +87,12 @@ public class Agent implements MarioAgent {
 		float reward = s1.getCompletionPercentage();
 		// Take action and get reward
 		s1.advance(action);
-		getBestAction();
 		float reward2 = s1.getCompletionPercentage();
 		reward = reward2 - reward;
 		// Set new table values
 		setTableValues(actionIndex, reward, s1);
+		// Decay epsilon
+		// epsilon *= 0.99f;
 		return action;
 	}
 
@@ -108,7 +109,9 @@ public class Agent implements MarioAgent {
 		for (int x = 0; x < qtable.length; x++)// for each row
 		{
 			for (int y = 0; y < qtable[0].length; y++) { // For each column
-				qtable[x][y][actionIndex] += alpha * (reward + gamma * (maxValue - qtable[x][y][actionIndex]));
+				// qtable[x][y][actionIndex] += alpha * (reward + gamma * (maxValue - qtable[x][y][actionIndex]));
+				float mQ = maxQ(x, y);
+				qtable[x][y][actionIndex] = (1 - alpha) * qtable[x][y][actionIndex] + alpha * (reward + gamma * mQ);
 			}
 		}
 	}
@@ -151,7 +154,7 @@ public class Agent implements MarioAgent {
 		try {
 			BufferedWriter writer;
 			writer = new BufferedWriter(
-					new FileWriter("/Users/arturoburelat/Documents/Mario-AI-Framework/table" + date + ".txt"));
+					new FileWriter("/home/burela/Documentos/Mario-AI-Framework/table" + date + ".txt"));
 			writer.write(builder.toString());// save the string representation of the board
 			writer.close();
 		} catch (IOException e) {
@@ -161,6 +164,10 @@ public class Agent implements MarioAgent {
 
 	private void train() {
 
+	}
+
+	public void setEpsilon(float e) {
+		epsilon = e;
 	}
 
 	private void printScene() {

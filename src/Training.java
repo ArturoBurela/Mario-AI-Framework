@@ -38,9 +38,9 @@ public class Training {
 	agents.qlearning.Agent agent = new agents.qlearning.Agent();
 	// agents.robinBaumgarten.Agent agent = new agents.robinBaumgarten.Agent();
 	// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
-	for(int i = 0; i< 100000; i++){
+	for(int i = 0; i< 10000; i++){
 		MarioResult r = game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, false);
-		if (i % 5000 == 0){
+		if (r.getGameStatus().toString() == "WIN"){
 			printResults(r);
 			agent.saveTable();
 		}
