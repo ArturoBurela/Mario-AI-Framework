@@ -35,12 +35,10 @@ public class Training {
     public static void main(String[] args) {
 	MarioGame game = new MarioGame();
 	// Create new agent
-	agents.qlearning.Agent agent = new agents.qlearning.Agent();
+	agents.qlearning.QLearningAgent agent = new agents.qlearning.QLearningAgent();
 	
 	// agents.robinBaumgarten.Agent agent = new agents.robinBaumgarten.Agent();
 	// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
-		float maxVal = 0f;
-		float last = 0f;
 	for(int i = 0; i< 10000; i++){
 		//MarioResult r = game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, false);
 		MarioResult r = game.runGame(agent, 
@@ -62,14 +60,8 @@ public class Training {
 		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 		100, 0, false);
 		
-		if (r.getCompletionPercentage() > maxVal) {
-			maxVal = r.getCompletionPercentage();
-		} 
-		
-		if (i % 5000 == 0 || maxVal > last){
-			last = maxVal;
+		if (true){
 			printResults(r);
-			agent.saveTable2();
 		}
 	}
 	printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));

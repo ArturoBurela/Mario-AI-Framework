@@ -35,7 +35,7 @@ public class Agent implements MarioAgent {
 	// epsilon
 	private float epsilon = 0.95f;
 	// alpha
-	private float alpha = 0.15f;
+	private float alpha = 0.95f;
 	// Gamma
 	private final float gamma = 0.8f;
 	// Scene matrix
