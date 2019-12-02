@@ -58,11 +58,22 @@ public class QLearningAgent implements MarioAgent {
         Double nextScore = (double) s1.getCompletionPercentage();
         String nextScene = serializeScene(s1.getMarioCompleteObservation());
         Double reward = ((nextScore - actualScore) * model.getRemainingTime()) + s1.getNumLives() + (s1.getKillsTotal() - model.getKillsTotal()) + (s1.getNumCollectedCoins() - model.getNumCollectedCoins());
-        reward += s1.getMarioFloatPos()[1];
+        // Reward quick position change
+        reward += s1.getMarioFloatPos()[0] - model.getMarioFloatPos()[0];
+        // We want mario to jump as high as possible
+        reward += model.getMarioFloatPos()[1] - s1.getMarioFloatPos()[1];
+        // Big loose if mario dies
         if (s1.getGameStatus() == GameStatus.LOSE){
             reward = -1000d;
         }
-        System.out.println(reward);
+        // Medium loose if time out
+        if (s1.getGameStatus() == GameStatus.TIME_OUT){
+            reward = -100d;
+        }
+        // Big reward if WIN
+        if (s1.getGameStatus() == GameStatus.WIN){
+            reward = 1000d;
+        }
         // Update table values
         String state = scene + actionIndex;
         Double value = (1 - APLHA) * qtable.get(state) + APLHA * (reward + GAMMA + getMax(nextScene));
