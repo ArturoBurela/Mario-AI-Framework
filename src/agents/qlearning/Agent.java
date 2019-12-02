@@ -3,8 +3,10 @@ package agents.qlearning;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,13 +26,14 @@ public class Agent implements MarioAgent {
 	// Useful for exploration generating random choices
 	private Random rnd;
 	private ArrayList<boolean[]> choices;
+	private agents.robinBaumgarten.Agent a;
 
 	private boolean[] actions;
 
 	// Q Table
 	private double[][][] qtable;
 	// epsilon
-	private float epsilon = 0.3f;
+	private float epsilon = 0.95f;
 	// alpha
 	private float alpha = 0.15f;
 	// Gamma
@@ -47,6 +50,7 @@ public class Agent implements MarioAgent {
 	public void initialize(final MarioForwardModel model, final MarioTimer timer) {
 		rnd = new Random();
 		initPossibleChoices();
+		a.initialize(model, timer);
 		// initTable();
 		initTable2();
 		// saveTable();
@@ -55,6 +59,7 @@ public class Agent implements MarioAgent {
 
 	private void initPossibleChoices() {
 		choices = new ArrayList<>();
+		a = new agents.robinBaumgarten.Agent();
 		// right run
 		choices.add(new boolean[] { false, true, false, true, false });
 		// right jump and run
@@ -83,6 +88,21 @@ public class Agent implements MarioAgent {
 		}
 	}
 
+	public void saveTable2() {
+		try {
+			final LocalDateTime date = LocalDateTime.now();
+			FileOutputStream fileOut = new FileOutputStream(
+					"/home/burela/Documentos/Mario-AI-Framework/hashtable" + date + ".txt");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(qtable2);
+			out.close();
+			fileOut.close();
+			System.out.printf("Serialized data is saved in /tmp/employee.ser");
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+
 	private void initTable2() {
 		qtable2 = new HashMap<Estado, Double>();
 		// Init for all Estados
@@ -102,7 +122,7 @@ public class Agent implements MarioAgent {
 		// Exploration vs exploitation
 		if (rnd.nextFloat() < epsilon) {
 			// do a random choice
-			action = choices.get(rnd.nextInt(choices.size()));
+			action = a.getActions(model, timer); // choices.get(rnd.nextInt(choices.size()));
 		} else {
 			// Look table and get action
 			action = getBestAction2(scene);
@@ -135,7 +155,7 @@ public class Agent implements MarioAgent {
 				}
 			} else {
 				qtable2.put(e, 0d);
-				bestAction = action;
+				// bestAction = action;
 			}
 		}
 		return bestAction;
@@ -163,11 +183,13 @@ public class Agent implements MarioAgent {
 
 	private void setTableValues2(int[][] scene, float reward, boolean[] action, MarioForwardModel nextState) {
 		Estado e = new Estado(scene, action);
-		if (! qtable2.containsKey(e)) {
+		if (!qtable2.containsKey(e)) {
 			qtable2.put(e, 0d);
 		}
-		qtable2.put(e, qtable2.get(e) + alpha * ((double)reward + (double)gamma * getMax2(nextState.getMarioCompleteObservation()) - qtable2.get(e)));
-		// Q[state, action] = Q[state, action] + lr * (reward + gamma * np.max(Q[new_state, :]) — Q[state, action])
+		qtable2.put(e, qtable2.get(e) + alpha * ((double) reward
+				+ (double) gamma * getMax2(nextState.getMarioCompleteObservation()) - qtable2.get(e)));
+		// Q[state, action] = Q[state, action] + lr * (reward + gamma *
+		// np.max(Q[new_state, :]) — Q[state, action])
 	}
 
 	@Override

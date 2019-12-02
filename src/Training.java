@@ -69,7 +69,7 @@ public class Training {
 		if (i % 5000 == 0 || maxVal > last){
 			last = maxVal;
 			printResults(r);
-			// agent.saveTable();
+			agent.saveTable2();
 		}
 	}
 	printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
