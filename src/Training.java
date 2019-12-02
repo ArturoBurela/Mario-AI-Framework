@@ -33,14 +33,18 @@ public class Training {
 	}
 
 	public static void main(String[] args) {
+
+		int games = 100000;
+		int savePace = 5000;
+
 		MarioGame game = new MarioGame();
 		// Create new agent
 		agents.qlearning.QLearningAgent agent = new agents.qlearning.QLearningAgent();
 		// Show screen
 		boolean show = false;
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < games; i++) {
 
-			if (i % 1000 == -1) {
+			if (i % savePace == -1) {
 				show = true;
 			} else {
 				show = false;
@@ -67,11 +71,12 @@ public class Training {
 							+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 					100, 0, show);
 
-			if (i % 1000 == 0) {
+			if (i % savePace == 0) {
 				agent.saveTable();
 				printResults(r);
 			}
 		}
-		printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
+		// printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
+		agent.saveTable();
 	}
 }
