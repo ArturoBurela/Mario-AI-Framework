@@ -34,6 +34,7 @@ public class PlayLevel {
     public static void main(String[] args) {
 	MarioGame game = new MarioGame();
 	// printResults(game.playGame(getLevel("levels/original/lvl-1.txt"), 200, 0));
-	printResults(game.runGame(new agents.qlearning.Agent(), getLevel("levels/original/lvl-1.txt"), 100, 0, true));
+	agents.qlearning.Agent agent = new agents.qlearning.Agent();
+	printResults(game.runGame(agent, getLevel("levels/original/lvl-1.txt"), 100, 0, true));
     }
 }

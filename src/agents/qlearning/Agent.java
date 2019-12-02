@@ -1,11 +1,19 @@
 package agents.qlearning;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
 
 import engine.core.MarioAgent;
 import engine.core.MarioForwardModel;
@@ -26,17 +34,21 @@ public class Agent implements MarioAgent {
 	// alpha
 	private float alpha = 0.15f;
 	// Gamma
-	private float gamma = 0.8f;
+	private final float gamma = 0.8f;
 	// Scene matrix
 	private int[][] scene;
 	// Mac qtable score
 	private float maxValue = 0f;
 
+	// second qtable
+	public HashMap<Estado, Double> qtable2;
+
 	@Override
-	public void initialize(MarioForwardModel model, MarioTimer timer) {
+	public void initialize(final MarioForwardModel model, final MarioTimer timer) {
 		rnd = new Random();
 		initPossibleChoices();
-		initTable();
+		// initTable();
+		initTable2();
 		// saveTable();
 		actions = new boolean[MarioActions.numberOfActions()];
 	}
@@ -63,36 +75,99 @@ public class Agent implements MarioAgent {
 
 	private void initTable() {
 		qtable = new double[16][16][8];
+		try {
+			loadTable();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void initTable2() {
+		qtable2 = new HashMap<Estado, Double>();
+		// Init for all Estados
+		/*
+		 * for (int i = 0; i < 16; i++)// for each row { for (int j = 0; j < 16; j++)//
+		 * for each column { for (int k = 0; k < 8; k++) { // For each action
+		 * qtable2.put(new Estado(i, j, choices.get(k)), 0d); } } }
+		 */
 	}
 
 	@Override
-	public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
+	public boolean[] getActions(final MarioForwardModel model, final MarioTimer timer) {
 		boolean[] action = null;
 		scene = model.getMarioCompleteObservation();
 		// printScene();
 		// printTable();
-		int actionIndex = 0;
 		// Exploration vs exploitation
 		if (rnd.nextFloat() < epsilon) {
 			// do a random choice
-			actionIndex = rnd.nextInt(choices.size());
-			action = choices.get(actionIndex);
+			action = choices.get(rnd.nextInt(choices.size()));
 		} else {
 			// Look table and get action
-			actionIndex = getBestAction();
-			action = choices.get(actionIndex);
+			action = getBestAction2(scene);
 		}
 		// Update table values
-		MarioForwardModel s1 = model.clone();
+		final MarioForwardModel s1 = model.clone();
 		float reward = s1.getCompletionPercentage();
 		// Take action and get reward
 		s1.advance(action);
-		getBestAction();
 		float reward2 = s1.getCompletionPercentage();
 		reward = reward2 - reward;
 		// Set new table values
-		setTableValues(actionIndex, reward, s1);
+		setTableValues2(scene, reward, action, s1);
+		// Decay epsilon
+		// epsilon *= 0.99f;
 		return action;
+	}
+
+	private boolean[] getBestAction2(int[][] scene) {
+		// Look for scenes of every action
+		Estado e;
+		boolean[] bestAction = choices.get(0);
+		double max = 0d;
+		for (boolean[] action : choices) {
+			e = new Estado(scene, action);
+			if (qtable2.containsKey(e)) {
+				if (qtable2.get(e) > max) {
+					bestAction = action;
+					max = qtable2.get(e);
+				}
+			} else {
+				qtable2.put(e, 0d);
+				bestAction = action;
+			}
+		}
+		return bestAction;
+	}
+
+	private double getMax2(int[][] scene) {
+		// Look for scenes of every action
+		Estado e;
+		boolean[] bestAction = choices.get(0);
+		double max = 0d;
+		for (boolean[] action : choices) {
+			e = new Estado(scene, action);
+			if (qtable2.containsKey(e)) {
+				if (qtable2.get(e) > max) {
+					bestAction = action;
+					max = qtable2.get(e);
+				}
+			} else {
+				qtable2.put(e, 0d);
+				bestAction = action;
+			}
+		}
+		return max;
+	}
+
+	private void setTableValues2(int[][] scene, float reward, boolean[] action, MarioForwardModel nextState) {
+		Estado e = new Estado(scene, action);
+		if (! qtable2.containsKey(e)) {
+			qtable2.put(e, 0d);
+		}
+		qtable2.put(e, qtable2.get(e) + alpha * ((double)reward + (double)gamma * getMax2(nextState.getMarioCompleteObservation()) - qtable2.get(e)));
+		// Q[state, action] = Q[state, action] + lr * (reward + gamma * np.max(Q[new_state, :]) — Q[state, action])
 	}
 
 	@Override
@@ -100,15 +175,41 @@ public class Agent implements MarioAgent {
 		return "QLearningAgent";
 	}
 
-	private void loadTable() {
-
+	private void loadTable() throws IOException {
+		final String file = "/home/burela/Documentos/Mario-AI-Framework/win.txt";
+		try {
+			String data = "";
+			data = new String(Files.readAllBytes(Paths.get(file)));
+			System.out.println(data);
+			String[] datos = data.split(",");
+			int n = 0;
+			for (int i = 0; i < qtable.length; i++)// for each row
+			{
+				for (int j = 0; j < qtable[0].length; j++)// for each column
+				{
+					for (int k = 0; k < qtable[0][0].length; k++) { // For each action
+						qtable[i][j][k] = Double.parseDouble(datos[n]);
+						n++;
+						// builder.append(qtable[i][j][k] + "");
+						// builder.append(",");
+					}
+				}
+			}
+		} catch (final FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private void setTableValues(int actionIndex, float reward, MarioForwardModel newState) {
+	private void setTableValues(final int actionIndex, final float reward, final MarioForwardModel newState) {
 		for (int x = 0; x < qtable.length; x++)// for each row
 		{
 			for (int y = 0; y < qtable[0].length; y++) { // For each column
-				qtable[x][y][actionIndex] += alpha * (reward + gamma * (maxValue - qtable[x][y][actionIndex]));
+				// qtable[x][y][actionIndex] += alpha * (reward + gamma * (maxValue -
+				// qtable[x][y][actionIndex]));
+				// float mQ = maxQ(x, y);
+				// qtable[x][y][actionIndex] = (1 - alpha) * qtable[x][y][actionIndex] + alpha *
+				// (reward + gamma * mQ);
 			}
 		}
 	}
@@ -136,7 +237,7 @@ public class Agent implements MarioAgent {
 	}
 
 	public void saveTable() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < qtable.length; i++)// for each row
 		{
 			for (int j = 0; j < qtable[0].length; j++)// for each column
@@ -147,20 +248,27 @@ public class Agent implements MarioAgent {
 				}
 			}
 		}
-		LocalDateTime date = LocalDateTime.now();
+		final LocalDateTime date = LocalDateTime.now();
+		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
+
+		final String formattedDateTime = date.format(formatter);
 		try {
 			BufferedWriter writer;
 			writer = new BufferedWriter(
-					new FileWriter("/Users/arturoburelat/Documents/Mario-AI-Framework/table" + date + ".txt"));
+					new FileWriter("/home/burela/Documentos/Mario-AI-Framework/table" + date + ".txt"));
 			writer.write(builder.toString());// save the string representation of the board
 			writer.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void train() {
 
+	}
+
+	public void setEpsilon(float e) {
+		epsilon = e;
 	}
 
 	private void printScene() {
