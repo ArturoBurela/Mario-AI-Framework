@@ -19,14 +19,14 @@ public class QLearningAgent implements MarioAgent {
     private HashMap<String, Double> qtable;
     private ArrayList<boolean[]> actions;
 
-    private final double EPSILON = 0.5d;
+    private double EPSILON = 0.9d;
     private final double APLHA = 0.15d;
     private final double GAMMA = 0.8d;
 
     public QLearningAgent(){
         qtable = new HashMap<>();
         initPossibleActions();
-        System.out.println("Init Agent");
+        System.out.println("Q Learning Agent Created");
     }
 
     @Override
@@ -42,6 +42,10 @@ public class QLearningAgent implements MarioAgent {
         int actionIndex;
         // Exploration vs exploitation
         if (rnd.nextFloat() < EPSILON) {
+            // Reduce epsilon
+            if(EPSILON > 0.2d){
+                EPSILON *= 0.9999999d;
+            }
             // do a random choice
             actionIndex = rnd.nextInt(actions.size());
             action = actions.get(actionIndex);
