@@ -34,8 +34,8 @@ public class Training {
 
 	public static void main(String[] args) {
 
-		int games = 100000;
-		int savePace = 5000;
+		int games = 10000;
+		int savePace = 100;
 
 		MarioGame game = new MarioGame();
 		// Create new agent
@@ -44,7 +44,7 @@ public class Training {
 		boolean show = false;
 		for (int i = 0; i < games; i++) {
 
-			if (i % savePace == -1) {
+			if (i % savePace == 0) {
 				show = true;
 			} else {
 				show = false;

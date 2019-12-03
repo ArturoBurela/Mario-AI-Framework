@@ -1,8 +1,13 @@
 package agents.qlearning;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,6 +175,23 @@ public class QLearningAgent implements MarioAgent {
 		} catch (IOException i) {
 			i.printStackTrace();
 		}
-	}
+    }
+    
+    public void loadTable(String name) throws IOException {
+		try {
+            FileInputStream fileIn = new FileInputStream(name);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            qtable = (HashMap<String, Double>) in.readObject();
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public void setEpsilon(double e){
+        EPSILON = e;
+    }
 
 }
